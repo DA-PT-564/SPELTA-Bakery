@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPELTA Caracas | Panadería Artesanal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#f7f3ed] min-h-screen font-sans text-[#2c221e] pb-24">
+
+  <!-- Encabezado con estética SPELTA -->
+  <header class="bg-[#e8decb] border-b border-[#d6c5ad] p-6 text-center shadow-xs">
+    <h1 class="text-3xl font-serif font-bold tracking-wider text-[#2c221e]">SPELTA</h1>
+    <p class="text-xs uppercase tracking-widest text-[#6b584a] mt-1">Caracas — Panadería Artesanal</p>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- Panel Editable de Tasa BCV -->
+    <section class="bg-white p-3.5 rounded-xl border border-[#d6c5ad] shadow-xs flex items-center justify-between">
+      <div>
+        <label for="bcv-rate" class="block text-xs font-bold uppercase tracking-wider text-[#6b584a]">Tasa BCV del día (Bs/$)</label>
+        <span class="text-[10px] text-gray-500">Puedes editarla en cualquier momento</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <input type="number" id="bcv-rate" step="0.01" value="36.50" oninput="updateRate()" 
+               class="w-24 border border-[#d6c5ad] rounded-lg p-1.5 text-right font-bold text-sm bg-[#fcfaf7] focus:ring-2 focus:ring-[#6b584a] outline-none">
+        <span class="text-xs font-bold text-[#2c221e]">Bs</span>
+      </div>
+    </section>
+
+    <!-- Menú: Galletas -->
+    <section>
+      <h2 class="text-xl font-serif font-bold text-[#2c221e] border-b border-[#d6c5ad] pb-1 mb-3 flex items-center gap-2">
+        <span>🍪</span> GALLETAS
+      </h2>
+      <div id="catalog-galletas" class="space-y-2.5"></div>
+    </section>
+
+    <!-- Menú: Panes -->
+    <section>
+      <h2 class="text-xl font-serif font-bold text-[#2c221e] border-b border-[#d6c5ad] pb-1 mb-3 flex items-center gap-2">
+        <span>🥖</span> PANES
+      </h2>
+      <div id="catalog-panes" class="space-y-2.5"></div>
+    </section>
+
+    <!-- Resumen del Pedido -->
+    <section class="bg-white p-4 rounded-xl border border-[#d6c5ad] shadow-xs">
+      <h2 class="text-base font-serif font-bold text-[#2c221e] mb-2">Resumen de Tu Pedido</h2>
+      <div id="order-summary" class="text-xs text-gray-600 space-y-1 mb-3">
+        <p class="italic">No has seleccionado ningún producto.</p>
+      </div>
+      <div class="border-t border-gray-200 pt-2 flex justify-between items-center font-bold text-base text-[#2c221e]">
+        <span>Total:</span>
+        <span id="total-price">$0.00</span>
+      </div>
+      <div class="text-right text-xs text-[#6b584a] font-medium mt-0.5">
+        Equivalente: <span id="total-bs" class="font-bold">0.00 Bs.</span>
+      </div>
+    </section>
+
+    <!-- Datos del Cliente -->
+    <section class="bg-white p-4 rounded-xl border border-[#d6c5ad] shadow-xs space-y-3">
+      <h2 class="text-base font-serif font-bold text-[#2c221e]">Datos de Entrega y Pago</h2>
+      
+      <div>
+        <label class="block text-xs font-medium text-[#6b584a] mb-1">Nombre Completo *</label>
+        <input type="text" id="cust-name" placeholder="Ej: María Pérez" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none focus:border-[#6b584a]">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-xs font-medium text-[#6b584a] mb-1">Método de Entrega</label>
+          <select id="delivery-method" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none">
+            <option value="Retiro en Local">Retiro en Local</option>
+            <option value="Delivery">Delivery</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-[#6b584a] mb-1">Método de Pago</label>
+          <select id="payment-method" class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none">
+            <option value="Pago Móvil">Pago Móvil</option>
+            <option value="Zelle">Zelle</option>
+            <option value="Efectivo USD">Efectivo USD</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-[#6b584a] mb-1">Notas / Dirección</label>
+        <textarea id="cust-notes" rows="2" placeholder="Ej: Entregar después de las 2 PM." class="w-full border border-gray-300 rounded-lg p-2 text-xs outline-none"></textarea>
+      </div>
+    </section>
+
+    <!-- Botón WhatsApp -->
+    <button onclick="sendWhatsAppOrder()" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
+      <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+      Enviar Pedido por WhatsApp
+    </button>
+
+  </main>
+
+  <script>
+    const WHATSAPP_PHONE = "584120000000"; // Pon aquí tu WhatsApp con 58
+
+    // Lista de productos extraídos de tus imágenes (puedes ajustar los precios en USD)
+    const PRODUCTS = [
+      // Galletas
+      { id: 1, category: "galletas", name: "Mini Galletas", price: 3.00 },
+      { id: 2, category: "galletas", name: "Cookie Balls", price: 3.50 },
+      { id: 3, category: "galletas", name: "Cookie Bar", price: 4.00 },
+      // Panes
+      { id: 4, category: "panes", name: "Pan Trenzado Bicolor", price: 5.00 },
+      { id: 5, category: "panes", name: "Pan de Chocolate", price: 5.50 },
+      { id: 6, category: "panes", name: "Rollos de Canela", price: 3.00 },
+      { id: 7, category: "panes", name: "Rollos de Chocolate", price: 3.50 },
+      { id: 8, category: "panes", name: "Pan Brioche", price: 4.50 },
+      { id: 9, category: "panes", name: "Bagels", price: 2.50 },
+      { id: 10, category: "panes", name: "Pan de Orégano", price: 4.00 }
+    ];
+
+    const cart = {};
+    let currentRate = parseFloat(localStorage.getItem('spelta_bcv_rate')) || 36.50;
+
+    // Inicializar tasa guardada
+    document.getElementById("bcv-rate").value = currentRate;
+
+    function updateRate() {
+      const val = parseFloat(document.getElementById("bcv-rate").value);
+      if (!isNaN(val) && val > 0) {
+        currentRate = val;
+        localStorage.setItem('spelta_bcv_rate', val); // Guarda la tasa localmente
+        renderCatalog();
+        updateSummary();
+      }
+    }
+
+    function renderCatalog() {
+      const galletasContainer = document.getElementById("catalog-galletas");
+      const panesContainer = document.getElementById("catalog-panes");
+
+      const createCard = (p) => {
+        const priceBs = (p.price * currentRate).toFixed(2);
+        return `
+          <div class="bg-white p-3 rounded-xl border border-[#d6c5ad] flex justify-between items-center shadow-2xs">
+            <div>
+              <h3 class="font-bold text-sm text-[#2c221e]">${p.name}</h3>
+              <p class="text-xs font-semibold text-[#6b584a] mt-0.5">
+                $${p.price.toFixed(2)} <span class="text-[10px] text-gray-500 font-normal">(${priceBs} Bs.)</span>
+              </p>
+            </div>
+            <div class="flex items-center gap-2 bg-[#f7f3ed] p-1 rounded-lg border border-[#d6c5ad]">
+              <button onclick="updateQty(${p.id}, -1)" class="w-6 h-6 bg-white text-[#2c221e] rounded font-bold hover:bg-gray-100">-</button>
+              <span id="qty-${p.id}" class="w-4 text-center text-xs font-bold">${cart[p.id] || 0}</span>
+              <button onclick="updateQty(${p.id}, 1)" class="w-6 h-6 bg-[#2c221e] text-white rounded font-bold hover:bg-[#42332d]">+</button>
+            </div>
+          </div>
+        `;
+      };
+
+      galletasContainer.innerHTML = PRODUCTS.filter(p => p.category === 'galletas').map(createCard).join('');
+      panesContainer.innerHTML = PRODUCTS.filter(p => p.category === 'panes').map(createCard).join('');
+    }
+
+    function updateQty(id, change) {
+      const current = cart[id] || 0;
+      const next = Math.max(0, current + change);
+      if (next === 0) delete cart[id];
+      else cart[id] = next;
+
+      document.getElementById(`qty-${id}`).innerText = next;
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const summaryDiv = document.getElementById("order-summary");
+      let total = 0;
+      let itemsHtml = [];
+
+      Object.keys(cart).forEach(id => {
+        const prod = PRODUCTS.find(p => p.id == id);
+        const qty = cart[id];
+        const subtotal = prod.price * qty;
+        total += subtotal;
+        itemsHtml.push(`<div class="flex justify-between"><span>${qty}x ${prod.name}</span><span>$${subtotal.toFixed(2)}</span></div>`);
+      });
+
+      summaryDiv.innerHTML = itemsHtml.length === 0 
+        ? `<p class="italic text-gray-400">No has seleccionado ningún producto.</p>` 
+        : itemsHtml.join('');
+
+      document.getElementById("total-price").innerText = `$${total.toFixed(2)}`;
+      document.getElementById("total-bs").innerText = `${(total * currentRate).toFixed(2)} Bs.`;
+    }
+
+    function sendWhatsAppOrder() {
+      const name = document.getElementById("cust-name").value.trim();
+      if (!name) return alert("Por favor, ingresa tu nombre completo.");
+
+      const itemKeys = Object.keys(cart);
+      if (itemKeys.length === 0) return alert("Por favor, selecciona al menos un producto.");
+
+      const delivery = document.getElementById("delivery-method").value;
+      const payment = document.getElementById("payment-method").value;
+      const notes = document.getElementById("cust-notes").value.trim();
+
+      let totalUSD = 0;
+      let orderListText = "";
+
+      itemKeys.forEach(id => {
+        const prod = PRODUCTS.find(p => p.id == id);
+        const qty = cart[id];
+        const subtotal = prod.price * qty;
+        totalUSD += subtotal;
+        orderListText += `• ${qty}x ${prod.name} ($${subtotal.toFixed(2)})\n`;
+      });
+
+      const totalBS = (totalUSD * currentRate).toFixed(2);
+
+      let msg = `🥖 *NUEVO PEDIDO - SPELTA CARACAS*\n`;
+      msg += `--------------------------------\n`;
+      msg += `👤 *Cliente:* ${name}\n`;
+      msg += `🛵 *Entrega:* ${delivery}\n`;
+      msg += `💳 *Pago:* ${payment}\n`;
+      if (notes) msg += `📝 *Notas:* ${notes}\n`;
+      msg += `--------------------------------\n`;
+      msg += `📋 *DETALLE DEL PEDIDO:*\n${orderListText}`;
+      msg += `--------------------------------\n`;
+      msg += `💰 *TOTAL USD:* $${totalUSD.toFixed(2)}\n`;
+      msg += `🇻🇪 *TOTAL BS (Tasa ${currentRate} Bs/$):* ${totalBS} Bs.\n\n`;
+      msg += `Quedo a la espera de confirmación y datos para realizar el pago.`;
+
+      window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    renderCatalog();
+  </script>
+</body>
+</html>
