@@ -14,9 +14,13 @@
     <p class="text-xs uppercase tracking-widest text-[#6b584a] mt-1">Caracas — Panadería Artesanal</p>
   </header>
 
+  <!-- Banner de Horario (Se muestra automáticamente cuando la tienda está cerrada) -->
+  <div id="schedule-banner" class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 text-xs text-center py-2.5 px-4 font-bold">
+  </div>
+
   <main class="max-w-md mx-auto p-4 space-y-6">
 
-    <!-- Panel de Tasa BCV (SOLO LECTURA PARA EL CLIENTE) -->
+    <!-- Panel de Tasa BCV (Solo lectura para el cliente) -->
     <section class="bg-white p-3.5 rounded-xl border border-[#d6c5ad] shadow-xs flex items-center justify-between">
       <div>
         <span class="block text-xs font-bold uppercase tracking-wider text-[#6b584a]">Tasa Oficial BCV del día</span>
@@ -93,7 +97,7 @@
     </section>
 
     <!-- Botón WhatsApp -->
-    <button onclick="sendWhatsAppOrder()" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
+    <button id="submit-btn" onclick="sendWhatsAppOrder()" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
       <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
       Enviar Pedido por WhatsApp
     </button>
@@ -101,11 +105,20 @@
   </main>
 
   <script>
-    const WHATSAPP_PHONE = "584120000000"; // Pon aquí tu WhatsApp con 58
+    // ==========================================
+    // 1. CONFIGURACIÓN DEL NEGOCIO Y HORARIOS
+    // ==========================================
+    const WHATSAPP_PHONE = "584120000000"; // Pon aquí tu número de WhatsApp con el 58
 
-    // LISTA DE PRODUCTOS CON CONTROL DE STOCK Y LÍMITES
-    // available: true/false -> Controla si hay existencia o está agotado
-    // maxQty: número -> Máximo número de unidades por pedido
+    const SCHEDULE_CONFIG = {
+      // Días permitidos: 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
+      allowedDays: [1, 2, 3, 4, 5], // Lunes a Viernes
+      openHour: 8,                  // Hora de apertura (8:00 AM)
+      closeHour: 18,                // Hora de cierre (6:00 PM)
+      customClosedMessage: "Recibimos pedidos de Lunes a Viernes de 8:00 AM a 6:00 PM."
+    };
+
+    // LISTA DE PRODUCTOS (Modifica precios, disponibilidad y límites)
     const PRODUCTS = [
       // Galletas
       { id: 1, category: "galletas", name: "Mini Galletas", price: 3.00, available: true, maxQty: 5 },
@@ -118,13 +131,50 @@
       { id: 7, category: "panes", name: "Rollos de Chocolate", price: 3.50, available: true, maxQty: 6 },
       { id: 8, category: "panes", name: "Pan Brioche", price: 4.50, available: true, maxQty: 2 },
       { id: 9, category: "panes", name: "Bagels", price: 2.50, available: true, maxQty: 10 },
-      { id: 10, category: "panes", name: "Pan de Orégano", price: 4.00, available: false, maxQty: 3 } // Ejemplo de producto Agotado
+      { id: 10, category: "panes", name: "Pan de Orégano", price: 4.00, available: false, maxQty: 3 }
     ];
 
     const cart = {};
     let currentRate = 36.50; // Tasa por defecto de respaldo
 
-    // 1. OBTENER TASA OFICIAL BCV AUTOMÁTICAMENTE VIA API
+    // ==========================================
+    // 2. CONTROL DE HORARIO DE LA TIENDA
+    // ==========================================
+    function checkStoreStatus() {
+      const now = new Date();
+      const day = now.getDay();
+      const hour = now.getHours();
+
+      const isDayValid = SCHEDULE_CONFIG.allowedDays.includes(day);
+      const isHourValid = hour >= SCHEDULE_CONFIG.openHour && hour < SCHEDULE_CONFIG.closeHour;
+
+      const isOpen = isDayValid && isHourValid;
+      updateUIStoreStatus(isOpen);
+      return isOpen;
+    }
+
+    function updateUIStoreStatus(isOpen) {
+      const btn = document.getElementById("submit-btn");
+      const banner = document.getElementById("schedule-banner");
+
+      if (!isOpen) {
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.remove("bg-[#25d366]", "hover:bg-[#20bd5a]");
+          btn.classList.add("bg-gray-400", "cursor-not-allowed");
+          btn.innerHTML = `🚫 Pedidos Cerrados`;
+        }
+
+        if (banner) {
+          banner.classList.remove("hidden");
+          banner.innerText = `🔴 Fuera de Horario: ${SCHEDULE_CONFIG.customClosedMessage}`;
+        }
+      }
+    }
+
+    // ==========================================
+    // 3. CONSULTA DE TASA BCV EN VIVO
+    // ==========================================
     async function fetchBCVRate() {
       const statusEl = document.getElementById("bcv-status");
       const displayEl = document.getElementById("bcv-rate-display");
@@ -150,6 +200,9 @@
       updateSummary();
     }
 
+    // ==========================================
+    // 4. RENDERIZADO Y CARRITO DE COMPRAS
+    // ==========================================
     function renderCatalog() {
       const galletasContainer = document.getElementById("catalog-galletas");
       const panesContainer = document.getElementById("catalog-panes");
@@ -157,7 +210,6 @@
       const createCard = (p) => {
         const priceBs = (p.price * currentRate).toFixed(2);
         
-        // Si el producto no está disponible (Agotado)
         if (!p.available) {
           return `
             <div class="bg-gray-100 p-3 rounded-xl border border-gray-200 flex justify-between items-center opacity-60">
@@ -196,9 +248,8 @@
       const current = cart[id] || 0;
       const next = current + change;
 
-      // Validación de límite de cantidad por producto
       if (next > prod.maxQty) {
-        alert(`Lo sentimos, el límite por pedido para ${prod.name} es de ${prod.maxQty} unidades.`);
+        alert(`El límite por pedido para ${prod.name} es de ${prod.maxQty} unidades.`);
         return;
       }
 
@@ -234,7 +285,15 @@
       document.getElementById("total-bs").innerText = `${(total * currentRate).toFixed(2)} Bs.`;
     }
 
+    // ==========================================
+    // 5. ENVÍO DEL PEDIDO A WHATSAPP
+    // ==========================================
     function sendWhatsAppOrder() {
+      if (!checkStoreStatus()) {
+        alert(`Lo sentimos, la tienda está cerrada en este momento.\n\n${SCHEDULE_CONFIG.customClosedMessage}`);
+        return;
+      }
+
       const name = document.getElementById("cust-name").value.trim();
       if (!name) return alert("Por favor, ingresa tu nombre completo.");
 
@@ -274,7 +333,10 @@
       window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    // Inicializar al cargar
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
+    checkStoreStatus();
     fetchBCVRate();
   </script>
 </body>
