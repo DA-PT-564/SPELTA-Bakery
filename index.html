@@ -289,49 +289,51 @@
     // 5. ENVÍO DEL PEDIDO A WHATSAPP
     // ==========================================
     function sendWhatsAppOrder() {
-      if (!checkStoreStatus()) {
-        alert(`Lo sentimos, la tienda está cerrada en este momento.\n\n${SCHEDULE_CONFIG.customClosedMessage}`);
-        return;
-      }
+  if (!checkStoreStatus()) {
+    alert(`Lo sentimos, la tienda está cerrada en este momento.\n\n${SCHEDULE_CONFIG.customClosedMessage}`);
+    return;
+  }
 
-      const name = document.getElementById("cust-name").value.trim();
-      if (!name) return alert("Por favor, ingresa tu nombre completo.");
+  const name = document.getElementById("cust-name").value.trim();
+  if (!name) return alert("Por favor, ingresa tu nombre completo.");
 
-      const itemKeys = Object.keys(cart);
-      if (itemKeys.length === 0) return alert("Por favor, selecciona al menos un producto.");
+  const itemKeys = Object.keys(cart);
+  if (itemKeys.length === 0) return alert("Por favor, selecciona al menos un producto.");
 
-      const delivery = document.getElementById("delivery-method").value;
-      const payment = document.getElementById("payment-method").value;
-      const notes = document.getElementById("cust-notes").value.trim();
+  const delivery = document.getElementById("delivery-method").value;
+  const payment = document.getElementById("payment-method").value;
+  const notes = document.getElementById("cust-notes").value.trim();
 
-      let totalUSD = 0;
-      let orderListText = "";
+  let totalUSD = 0;
+  let orderListText = "";
 
-      itemKeys.forEach(id => {
-        const prod = PRODUCTS.find(p => p.id == id);
-        const qty = cart[id];
-        const subtotal = prod.price * qty;
-        totalUSD += subtotal;
-        orderListText += `• ${qty}x ${prod.name} ($${subtotal.toFixed(2)})\n`;
-      });
+  itemKeys.forEach(id => {
+    const prod = PRODUCTS.find(p => p.id == id);
+    const qty = cart[id];
+    const subtotal = prod.price * qty;
+    totalUSD += subtotal;
+    orderListText += `• ${qty}x ${prod.name} ($${subtotal.toFixed(2)})\n`;
+  });
 
-      const totalBS = (totalUSD * currentRate).toFixed(2);
+  const rateFormatted = currentRate.toFixed(2); // Redondea la tasa a 2 decimales
+  const totalBS = (totalUSD * currentRate).toFixed(2);
 
-      let msg = `🥖 *NUEVO PEDIDO - SPELTA CARACAS*\n`;
-      msg += `--------------------------------\n`;
-      msg += `👤 *Cliente:* ${name}\n`;
-      msg += `🛵 *Entrega:* ${delivery}\n`;
-      msg += `💳 *Pago:* ${payment}\n`;
-      if (notes) msg += `📝 *Notas:* ${notes}\n`;
-      msg += `--------------------------------\n`;
-      msg += `📋 *DETALLE DEL PEDIDO:*\n${orderListText}`;
-      msg += `--------------------------------\n`;
-      msg += `💰 *TOTAL USD:* $${totalUSD.toFixed(2)}\n`;
-      msg += `🇻🇪 *TOTAL BS (Tasa ${currentRate} Bs/$):* ${totalBS} Bs.\n\n`;
-      msg += `Quedo a la espera de confirmación y datos para realizar el pago.`;
+  // Formato de texto limpio compatible con todos los navegadores y WhatsApp
+  let msg = `*NUEVO PEDIDO - SPELTA CARACAS*\n`;
+  msg += `--------------------------------\n`;
+  msg += `*Cliente:* ${name}\n`;
+  msg += `*Entrega:* ${delivery}\n`;
+  msg += `*Pago:* ${payment}\n`;
+  if (notes) msg += `*Notas:* ${notes}\n`;
+  msg += `--------------------------------\n`;
+  msg += `*DETALLE DEL PEDIDO:*\n${orderListText}`;
+  msg += `--------------------------------\n`;
+  msg += `*TOTAL USD:* $${totalUSD.toFixed(2)}\n`;
+  msg += `*TOTAL BS (Tasa ${rateFormatted} Bs/$):* ${totalBS} Bs.\n\n`;
+  msg += `Quedo a la espera de confirmación y datos para realizar el pago.`;
 
-      window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
+  window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
+}
 
     // ==========================================
     // INICIALIZACIÓN
