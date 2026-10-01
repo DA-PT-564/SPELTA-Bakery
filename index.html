@@ -107,7 +107,9 @@
 
   <!-- Modal de Confirmación de Pedido -->
   <div id="success-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl relative">
+      <button onclick="finishOrder()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+      
       <div class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
         ✓
       </div>
@@ -122,10 +124,16 @@
         Te contactaremos para confirmar disponibilidad y entrega.
       </p>
 
-      <button id="whatsapp-confirm-btn" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all text-xs">
-        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-        Abrir WhatsApp
-      </button>
+      <div class="space-y-2 pt-1">
+        <button id="whatsapp-confirm-btn" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all text-xs">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+          Abrir WhatsApp
+        </button>
+
+        <button onclick="finishOrder()" class="w-full text-xs text-gray-500 hover:text-gray-700 py-1.5 font-semibold underline">
+          Volver al Menú
+        </button>
+      </div>
     </div>
   </div>
 
@@ -146,7 +154,7 @@
       </div>
 
       <div class="space-y-2">
-        <h4 class="font-bold text-xs text-[#6b584a] uppercase">Disponibilidad de Productos</h4>
+        <h4 class="font-bold text-xs text-[#6b584a] uppercase">Gestión de Productos</h4>
         <div id="admin-products-list" class="space-y-2 divide-y divide-gray-100"></div>
       </div>
 
@@ -159,8 +167,6 @@
   // CONFIGURACIÓN PRINCIPAL
   // ==========================================
   const WHATSAPP_PHONE = "584248869310"; 
-  
-  // URL DE TU GOOGLE APPS SCRIPT
   const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwKSh55axPrLQ_YGJ1n6edbc1SAHhBu1rPsfVVArcvIB9t3olDlBop9TFgpDSQdP4fUQQ/exec"; 
 
   const SCHEDULE_CONFIG = {
@@ -170,7 +176,6 @@
     customClosedMessage: "Recibimos pedidos de Lunes a Viernes de 8:00 AM a 4:00 PM."
   };
 
-  // Cookie Balls y Cookie Bar desactivadas temporalmente con hidden: true
   let PRODUCTS = [
     { id: 1, category: "galletas", name: "Mini Galletas", price: 3.00, available: true, hidden: false, maxQty: 5 },
     { id: 2, category: "galletas", name: "Cookie Balls", price: 3.50, available: true, hidden: true, maxQty: 5 },
@@ -295,7 +300,6 @@
       `;
     };
 
-    // Se filtran únicamente los productos que NO estén ocultos (!p.hidden)
     galletasContainer.innerHTML = PRODUCTS.filter(p => p.category === 'galletas' && !p.hidden).map(createCard).join('');
     panesContainer.innerHTML = PRODUCTS.filter(p => p.category === 'panes' && !p.hidden).map(createCard).join('');
   }
@@ -358,7 +362,7 @@
 
     const btn = document.getElementById("submit-btn");
     btn.disabled = true;
-    btn.innerText = "⌛ Guardando pedido en Google Sheets...";
+    btn.innerText = "⌛ Procesando tu pedido...";
 
     const delivery = document.getElementById("delivery-method").value;
     const payment = document.getElementById("payment-method").value;
@@ -394,7 +398,6 @@
     };
 
     try {
-      // Petición directa que permite leer la respuesta de Apps Script
       const response = await fetch(GOOGLE_SHEETS_URL, {
         method: "POST",
         body: JSON.stringify(payload)
@@ -405,7 +408,6 @@
       if (resData.status === "success" && resData.orderId) {
         const orderId = resData.orderId;
 
-        // Construir mensaje oficial para WhatsApp
         let msg = `*NUEVO PEDIDO - SPELTA CARACAS*\n`;
         msg += `*ID Pedido:* #${orderId}\n`;
         msg += `--------------------------------\n`;
@@ -422,24 +424,33 @@
 
         const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`;
 
-        // Actualizar modal de confirmación
         document.getElementById("success-order-id").innerText = orderId;
         document.getElementById("whatsapp-confirm-btn").onclick = function() {
           window.open(waUrl, '_blank');
+          finishOrder();
         };
 
-        // Mostrar modal en pantalla
         document.getElementById("success-modal").classList.remove("hidden");
       } else {
-        throw new Error(resData.message || "No se pudo obtener respuesta válida de Google Sheets.");
+        throw new Error(resData.message || "Error al procesar el pedido.");
       }
     } catch (e) {
       console.error("Error al registrar pedido:", e);
-      alert("Hubo un problema al registrar tu pedido. Por favor verifica tu conexión o contáctanos directamente.");
+      alert("Hubo un problema al procesar tu pedido. Por favor verifica tu conexión o contáctanos directamente.");
     } finally {
       btn.disabled = false;
       btn.innerHTML = `<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg> Enviar Pedido por WhatsApp`;
     }
+  }
+
+  // Limpiar pedido y reiniciar interfaz tras confirmar
+  function finishOrder() {
+    Object.keys(cart).forEach(id => delete cart[id]);
+    document.getElementById("cust-name").value = "";
+    document.getElementById("cust-notes").value = "";
+    document.getElementById("success-modal").classList.add("hidden");
+    renderCatalog();
+    updateSummary();
   }
 
   // ==========================================
@@ -460,18 +471,21 @@
   function renderAdminProducts() {
     const list = document.getElementById("admin-products-list");
     list.innerHTML = PRODUCTS.map(p => `
-      <div class="flex items-center justify-between py-2 text-xs gap-2">
-        <div class="flex-1">
-          <span class="font-bold block">${p.name} ${p.hidden ? '<span class="text-gray-400 font-normal">(Menu oculto)</span>' : ''}</span>
+      <div class="flex items-center justify-between py-2 text-xs gap-1.5 border-b border-gray-100">
+        <div class="flex-1 min-w-0">
+          <span class="font-bold truncate block">${p.name}</span>
         </div>
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-0.5">
           <span class="text-gray-500 font-bold">$</span>
           <input type="number" step="0.50" min="0" value="${p.price.toFixed(2)}" 
                  onchange="updateProductPrice(${p.id}, this.value)" 
-                 class="w-16 border border-gray-300 rounded p-1 text-xs text-right font-semibold outline-none focus:border-[#6b584a]">
+                 class="w-14 border border-gray-300 rounded p-1 text-xs text-right font-semibold outline-none focus:border-[#6b584a]">
         </div>
-        <button onclick="toggleProductAvailability(${p.id})" class="px-2.5 py-1 rounded font-bold ${p.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+        <button onclick="toggleProductAvailability(${p.id})" class="px-2 py-1 rounded font-bold text-[10px] ${p.available ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
           ${p.available ? 'Disponible' : 'Agotado'}
+        </button>
+        <button onclick="toggleProductVisibility(${p.id})" class="px-2 py-1 rounded font-bold text-[10px] ${p.hidden ? 'bg-gray-200 text-gray-700' : 'bg-amber-100 text-amber-800'}" title="Ocultar o Mostrar en el menú">
+          ${p.hidden ? '👁️ Mostrar' : '🙈 Ocultar'}
         </button>
       </div>
     `).join('');
@@ -494,6 +508,16 @@
     const prod = PRODUCTS.find(p => p.id === id);
     if (prod) {
       prod.available = !prod.available;
+      localStorage.setItem("spelta_products", JSON.stringify(PRODUCTS));
+      renderAdminProducts();
+      renderCatalog();
+    }
+  }
+
+  function toggleProductVisibility(id) {
+    const prod = PRODUCTS.find(p => p.id === id);
+    if (prod) {
+      prod.hidden = !prod.hidden;
       localStorage.setItem("spelta_products", JSON.stringify(PRODUCTS));
       renderAdminProducts();
       renderCatalog();
