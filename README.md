@@ -1,42 +1,58 @@
-# SPELTA Caracas — Panadería Artesanal (Web App Estática)
+# 🥖 SPELTA Caracas - Web App de Pedidos
 
-## Breve descripción
-Catálogo web liviano para toma de pedidos directos por WhatsApp con registro previo automático en Google Sheets. Diseñado para un microemprendimiento artesanal sin local físico ni delivery propio.
+Catálogo web interactivo y sistema de recepción de pedidos para la panadería artesanal **SPELTA Caracas**. Permite a los clientes armar su pedido, calcular totales en USD y Bolívares (tasa BCV) y registrar la orden simultáneamente en Google Sheets y WhatsApp.
 
-## Stack Técnico
-- **HTML5 + Vanilla JavaScript (ES6)** (Sin frameworks complejos).
-- **Tailwind CSS** vía CDN (`https://cdn.tailwindcss.com`).
-- **Google Apps Script (Web App API)** como backend serverless para persistencia en Google Sheets.
-- **LocalStorage** para persistencia local de configuraciones de administración.
+---
 
-## Arquitectura y Funcionalidades Clave
+## 🚀 Funcionalidades Principales
 
-1. **Consulta de Tasa BCV:**
-   - Consume `https://ve.dolarapi.com/v1/dolares/oficial` en tiempo real.
-   - Permite sobreescribir la tasa manualmente desde el panel Admin.
+### 🛒 Para los Clientes
+- **Catálogo Dinámico:** Selección de panes y galletas con límites por producto.
+- **Cálculo Multimoneda:** Conversión en tiempo real de USD a Bolívares usando la tasa oficial del Banco Central de Venezuela (BCV).
+- **Control de Horarios:** Deshabilitación automática del botón de pedido fuera de la jornada laboral.
+- **Confirmación Integrada:** Cierre y limpieza automática del carrito/formulario tras abrir el enlace de WhatsApp.
 
-2. **Control de Horario Comercial:**
-   - Objeto `SCHEDULE_CONFIG` define días (Lunes-Viernes) y horas (8 AM - 6 PM).
-   - Bloquea el botón de envío y muestra un banner fuera de horario.
+### ⚙️ Panel de Administración (`⚙️ Admin`)
+- **Gestión de Precios:** Edición en tiempo real de precios en USD.
+- **Control de Stock:** Marcar productos como **Disponible** o **Agotado**.
+- **Ocultar / Mostrar Productos:** Control de visibilidad (👁️/🙈) para lanzar o pausar ítems sin eliminar código.
+- **Tasa BCV Manual:** Posibilidad de sobrescribir manualmente la tasa oficial del día.
+- **Persistencia Local:** Los cambios del panel de control se guardan en el navegador vía `localStorage`.
 
-3. **Panel de Administración (Modal Oculto):**
-   - Acceso vía botón `⚙️ Admin` con clave predeterminada (`1234`).
-   - Permite modificar **precios en USD** de productos individualmente.
-   - Permite alternar disponibilidad (**Disponible / Agotado**).
-   - Los cambios persisten en el navegador del administrador mediante `localStorage` (`spelta_products`, `spelta_manual_rate`).
+---
 
-4. **Generador de ID de Pedido:**
-   - Formato: `SP-YYMMDD-XXX` (Ej: `SP-260930-001`).
-   - Mantiene un contador correlativo diario en `localStorage`.
+## 📊 Integración con Google Sheets
 
-5. **Flujo de Envío de Pedido:**
-   - **Paso 1:** Valida campos requeridos (Nombre, Carrito con ítems).
-   - **Paso 2:** Genera ID único.
-   - **Paso 3:** Envía payload `JSON` vía `fetch` (POST `no-cors`) a `GOOGLE_SHEETS_URL`.
-   - **Paso 4:** Redirige al cliente a WhatsApp (`wa.me`) con el resumen formateado.
+Los pedidos se registran en Google Sheets mediante un Web App de Google Apps Script antes de redirigir al cliente a WhatsApp.
 
-6. **Logística de Entrega:**
-   - Opciones: "Punto de Encuentro Acordado" y "Retiro Previa Cita".
+### Estructura de la Hoja de Cálculo
+El script escribe automáticamente en las siguientes columnas:
 
-## Estructura de Datos (Products Array)
-Cada objeto de producto contiene: `{ id, category, name, price, available, maxQty }`.
+| Columna | Nombre | Descripción | Ejemplo |
+| :--- | :--- | :--- | :--- |
+| **A** | ID Pedido | Código correlativo diario `#SP-YYMMDD-XXX` | `#SP-261001-001` |
+| **B** | Fecha / Hora | Estampa de tiempo local | `1/10/2026, 3:54:49 p. m.` |
+| **C** | Cliente | Nombre completo del cliente | `Joseph Joestar` |
+| **D** | Modalidad Entrega | Acordar punto o retiro | `Punto de Encuentro Acordado` |
+| **E** | Método de Pago | Pago Móvil, Zelle o Efectivo USD | `Efectivo USD` |
+| **F** | Notas | Observaciones o detalles adicionales | `N/A` |
+| **G** | Productos | Resumen concatenado del pedido | `3x Mini Galletas, 2x Pan Trenzado` |
+| **H** | Total USD | Monto total en dólares | `40.50` |
+| **I** | Tasa BCV | Tasa de cambio aplicada (Bs/$) | `860.18` |
+| **J** | Total Bs | Monto equivalente en Bolívares | `34837.10` |
+
+---
+
+## 🛠️ Claves de `localStorage` Utilizadas
+
+- `spelta_products`: Guarda las modificaciones de precio, disponibilidad y visibilidad de los productos.
+- `spelta_manual_rate`: Almacena el valor de la tasa oficial forzada manualmente desde el panel de control.
+
+---
+
+## 📲 Flujo de Procesamiento del Pedido
+
+1. **Validación:** Se verifica que la tienda esté dentro del horario configurado y que los campos requeridos estén llenos.
+2. **Registro en Sheets:** Se realiza una petición `POST` al endpoint de Google Apps Script para almacenar la fila del pedido y generar el ID correlativo.
+3. **Generación de Enlace WhatsApp:** Se construye el mensaje preformateado incluyendo el ID de la orden.
+4. **Reseteo de Interfaz:** Al hacer clic en *"Abrir WhatsApp"* o cerrar el modal de confirmación, la función `finishOrder()` limpia los campos y vacía el carrito para permitir un nuevo pedido.
