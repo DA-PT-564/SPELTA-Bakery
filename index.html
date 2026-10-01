@@ -10,14 +10,11 @@
 
   <!-- Encabezado con espacio para Logo -->
   <header class="bg-[#efe4c8] border-b border-[#d6c5ad] py-6 px-4 text-center shadow-xs relative">
-  <!-- Botón de Admin -->
-  <button onclick="openAdminModal()" class="absolute top-4 right-4 text-xs font-bold text-[#6b584a] hover:text-[#2c221e] bg-white/60 hover:bg-white px-2.5 py-1.5 rounded-lg border border-[#d6c5ad] transition-all">
-    ⚙️ Admin
-  </button>
-
-  <!-- Logo Agrandado -->
-  <img id="store-logo" src="logo.png" alt="SPELTA Logo" class="h-44 sm:h-52 mx-auto object-contain" onerror="this.style.display='none'">
-</header>
+    <button onclick="openAdminModal()" class="absolute top-4 right-4 text-xs font-bold text-[#6b584a] hover:text-[#2c221e] bg-white/60 hover:bg-white px-2.5 py-1.5 rounded-lg border border-[#d6c5ad] transition-all">
+      ⚙️ Admin
+    </button>
+    <img id="store-logo" src="logo.png" alt="SPELTA Logo" class="h-44 sm:h-52 mx-auto object-contain" onerror="this.style.display='none'">
+  </header>
 
   <!-- Banner de Horario -->
   <div id="schedule-banner" class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 text-xs text-center py-2.5 px-4 font-bold"></div>
@@ -100,13 +97,37 @@
       </div>
     </section>
 
-    <!-- Botón WhatsApp -->
+    <!-- Botón Procesar Pedido -->
     <button id="submit-btn" onclick="processOrder()" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all">
       <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
       Enviar Pedido por WhatsApp
     </button>
 
   </main>
+
+  <!-- Modal de Confirmación de Pedido -->
+  <div id="success-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl">
+      <div class="w-12 h-12 bg-green-100 text-green-700 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+        ✓
+      </div>
+      <h3 class="font-bold text-xl text-[#2c221e]">✅ Pedido recibido</h3>
+      
+      <div class="bg-[#f7f3ed] p-3 rounded-xl border border-[#d6c5ad]">
+        <span class="block text-xs text-[#6b584a] font-bold uppercase">ID de Pedido</span>
+        <span id="success-order-id" class="text-lg font-extrabold text-[#2c221e]">--</span>
+      </div>
+
+      <p class="text-xs text-gray-600 leading-relaxed">
+        Te contactaremos para confirmar disponibilidad y entrega.
+      </p>
+
+      <button id="whatsapp-confirm-btn" class="w-full bg-[#25d366] hover:bg-[#20bd5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all text-xs">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+        Abrir WhatsApp
+      </button>
+    </div>
+  </div>
 
   <!-- Modal de Administración -->
   <div id="admin-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
@@ -139,8 +160,8 @@
   // ==========================================
   const WHATSAPP_PHONE = "584248869310"; 
   
-  // PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT
-  const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzzf2A4tytnV6hUi-BwAa1ceqwRDCXo8GK9EJJ9bT_ebzCWB_9lndvvul_CByHrRH2Lhw/exec"; 
+  // URL DE TU GOOGLE APPS SCRIPT
+  const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwKSh55axPrLQ_YGJ1n6edbc1SAHhBu1rPsfVVArcvIB9t3olDlBop9TFgpDSQdP4fUQQ/exec"; 
 
   const SCHEDULE_CONFIG = {
     allowedDays: [1, 2, 3, 4, 5], 
@@ -149,23 +170,23 @@
     customClosedMessage: "Recibimos pedidos de Lunes a Viernes de 8:00 AM a 4:00 PM."
   };
 
+  // Cookie Balls y Cookie Bar desactivadas temporalmente con hidden: true
   let PRODUCTS = [
-    { id: 1, category: "galletas", name: "Mini Galletas", price: 3.00, available: true, maxQty: 5 },
-    { id: 2, category: "galletas", name: "Cookie Balls", price: 3.50, available: true, maxQty: 5 },
-    { id: 3, category: "galletas", name: "Cookie Bar", price: 4.00, available: true, maxQty: 5 },
-    { id: 4, category: "panes", name: "Pan Trenzado Bicolor", price: 5.00, available: true, maxQty: 3 },
-    { id: 5, category: "panes", name: "Pan de Chocolate", price: 5.50, available: true, maxQty: 3 },
-    { id: 6, category: "panes", name: "Rollos de Canela", price: 3.00, available: true, maxQty: 6 },
-    { id: 7, category: "panes", name: "Rollos de Chocolate", price: 3.50, available: true, maxQty: 6 },
-    { id: 8, category: "panes", name: "Pan Brioche", price: 4.50, available: true, maxQty: 2 },
-    { id: 9, category: "panes", name: "Bagels", price: 2.50, available: true, maxQty: 10 },
-    { id: 10, category: "panes", name: "Pan de Orégano", price: 4.00, available: true, maxQty: 3 }
+    { id: 1, category: "galletas", name: "Mini Galletas", price: 3.00, available: true, hidden: false, maxQty: 5 },
+    { id: 2, category: "galletas", name: "Cookie Balls", price: 3.50, available: true, hidden: true, maxQty: 5 },
+    { id: 3, category: "galletas", name: "Cookie Bar", price: 4.00, available: true, hidden: true, maxQty: 5 },
+    { id: 4, category: "panes", name: "Pan Trenzado Bicolor", price: 5.00, available: true, hidden: false, maxQty: 3 },
+    { id: 5, category: "panes", name: "Pan de Chocolate", price: 5.50, available: true, hidden: false, maxQty: 3 },
+    { id: 6, category: "panes", name: "Rollos de Canela", price: 3.00, available: true, hidden: false, maxQty: 6 },
+    { id: 7, category: "panes", name: "Rollos de Chocolate", price: 3.50, available: true, hidden: false, maxQty: 6 },
+    { id: 8, category: "panes", name: "Pan Brioche", price: 4.50, available: true, hidden: false, maxQty: 2 },
+    { id: 9, category: "panes", name: "Bagels", price: 2.50, available: true, hidden: false, maxQty: 10 },
+    { id: 10, category: "panes", name: "Pan de Orégano", price: 4.00, available: true, hidden: false, maxQty: 3 }
   ];
 
   const cart = {};
   let currentRate = 36.50;
 
-  // Cargar configuraciones del Administrador almacenadas localmente
   function loadAdminSettings() {
     const savedProducts = localStorage.getItem("spelta_products");
     if (savedProducts) {
@@ -175,33 +196,6 @@
     if (savedRate) {
       currentRate = parseFloat(savedRate);
     }
-  }
-
-  // ==========================================
-  // GENERADOR DE ID ÚNICO DE PEDIDO (SP-YYMMDD-XXX)
-  // ==========================================
-  function generateOrderId() {
-    const now = new Date();
-    const yy = String(now.getFullYear()).slice(-2);
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const dateCode = `${yy}${mm}${dd}`;
-
-    let lastDate = localStorage.getItem("spelta_last_order_date");
-    let orderCounter = parseInt(localStorage.getItem("spelta_order_counter") || "0", 10);
-
-    if (lastDate === dateCode) {
-      orderCounter += 1;
-    } else {
-      lastDate = dateCode;
-      orderCounter = 1;
-    }
-
-    localStorage.setItem("spelta_last_order_date", dateCode);
-    localStorage.setItem("spelta_order_counter", orderCounter);
-
-    const sequence = String(orderCounter).padStart(3, '0');
-    return `SP-${dateCode}-${sequence}`;
   }
 
   // ==========================================
@@ -301,8 +295,9 @@
       `;
     };
 
-    galletasContainer.innerHTML = PRODUCTS.filter(p => p.category === 'galletas').map(createCard).join('');
-    panesContainer.innerHTML = PRODUCTS.filter(p => p.category === 'panes').map(createCard).join('');
+    // Se filtran únicamente los productos que NO estén ocultos (!p.hidden)
+    galletasContainer.innerHTML = PRODUCTS.filter(p => p.category === 'galletas' && !p.hidden).map(createCard).join('');
+    panesContainer.innerHTML = PRODUCTS.filter(p => p.category === 'panes' && !p.hidden).map(createCard).join('');
   }
 
   function updateQty(id, change) {
@@ -363,9 +358,8 @@
 
     const btn = document.getElementById("submit-btn");
     btn.disabled = true;
-    btn.innerText = "Guardando pedido...";
+    btn.innerText = "⌛ Guardando pedido en Google Sheets...";
 
-    const orderId = generateOrderId();
     const delivery = document.getElementById("delivery-method").value;
     const payment = document.getElementById("payment-method").value;
     const notes = document.getElementById("cust-notes").value.trim();
@@ -388,7 +382,6 @@
     const currentDateStr = new Date().toLocaleString("es-VE");
 
     const payload = {
-      orderId: orderId,
       date: currentDateStr,
       customerName: name,
       deliveryMethod: delivery,
@@ -401,36 +394,52 @@
     };
 
     try {
-      if (GOOGLE_SHEETS_URL && !GOOGLE_SHEETS_URL.includes("AKfycbwe...")) {
-        await fetch(GOOGLE_SHEETS_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      // Petición directa que permite leer la respuesta de Apps Script
+      const response = await fetch(GOOGLE_SHEETS_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const resData = await response.json();
+
+      if (resData.status === "success" && resData.orderId) {
+        const orderId = resData.orderId;
+
+        // Construir mensaje oficial para WhatsApp
+        let msg = `*NUEVO PEDIDO - SPELTA CARACAS*\n`;
+        msg += `*ID Pedido:* #${orderId}\n`;
+        msg += `--------------------------------\n`;
+        msg += `*Cliente:* ${name}\n`;
+        msg += `*Entrega:* ${delivery}\n`;
+        msg += `*Pago:* ${payment}\n`;
+        if (notes) msg += `*Notas/Punto:* ${notes}\n`;
+        msg += `--------------------------------\n`;
+        msg += `*DETALLE DEL PEDIDO:*\n${orderListText}`;
+        msg += `--------------------------------\n`;
+        msg += `*TOTAL USD:* $${totalUSD.toFixed(2)}\n`;
+        msg += `*TOTAL BS (Tasa ${rateFormatted} Bs/$):* ${totalBS} Bs.\n\n`;
+        msg += `Quedo a la espera de confirmación y datos para realizar el pago.`;
+
+        const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`;
+
+        // Actualizar modal de confirmación
+        document.getElementById("success-order-id").innerText = orderId;
+        document.getElementById("whatsapp-confirm-btn").onclick = function() {
+          window.open(waUrl, '_blank');
+        };
+
+        // Mostrar modal en pantalla
+        document.getElementById("success-modal").classList.remove("hidden");
+      } else {
+        throw new Error(resData.message || "No se pudo obtener respuesta válida de Google Sheets.");
       }
     } catch (e) {
-      console.warn("No se pudo registrar en Google Sheets:", e);
+      console.error("Error al registrar pedido:", e);
+      alert("Hubo un problema al registrar tu pedido. Por favor verifica tu conexión o contáctanos directamente.");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg> Enviar Pedido por WhatsApp`;
     }
-
-    let msg = `*NUEVO PEDIDO - SPELTA CARACAS*\n`;
-    msg += `*ID Pedido:* #${orderId}\n`;
-    msg += `--------------------------------\n`;
-    msg += `*Cliente:* ${name}\n`;
-    msg += `*Entrega:* ${delivery}\n`;
-    msg += `*Pago:* ${payment}\n`;
-    if (notes) msg += `*Notas/Punto:* ${notes}\n`;
-    msg += `--------------------------------\n`;
-    msg += `*DETALLE DEL PEDIDO:*\n${orderListText}`;
-    msg += `--------------------------------\n`;
-    msg += `*TOTAL USD:* $${totalUSD.toFixed(2)}\n`;
-    msg += `*TOTAL BS (Tasa ${rateFormatted} Bs/$):* ${totalBS} Bs.\n\n`;
-    msg += `Quedo a la espera de confirmación y datos para realizar el pago.`;
-
-    btn.disabled = false;
-    btn.innerHTML = `<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg> Enviar Pedido por WhatsApp`;
-
-    window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
   // ==========================================
@@ -453,7 +462,7 @@
     list.innerHTML = PRODUCTS.map(p => `
       <div class="flex items-center justify-between py-2 text-xs gap-2">
         <div class="flex-1">
-          <span class="font-bold block">${p.name}</span>
+          <span class="font-bold block">${p.name} ${p.hidden ? '<span class="text-gray-400 font-normal">(Menu oculto)</span>' : ''}</span>
         </div>
         <div class="flex items-center gap-1">
           <span class="text-gray-500 font-bold">$</span>
