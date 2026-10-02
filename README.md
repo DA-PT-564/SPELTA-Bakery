@@ -7,17 +7,16 @@ Catálogo web interactivo y sistema de recepción de pedidos para la panadería 
 ## 🚀 Funcionalidades Principales
 
 ### 🛒 Para los Clientes
-- **Catálogo Dinámico:** Selección de panes y galletas con límites por producto.
-- **Cálculo Multimoneda:** Conversión en tiempo real de USD a Bolívares usando la tasa oficial del Banco Central de Venezuela (BCV).
-- **Control de Horarios:** Deshabilitación automática del botón de pedido fuera de la jornada laboral.
+- **Catálogo Dinámico:** Selección de panes y galletas con límites de cantidad por producto.
+- **Cálculo Multimoneda:** Conversión en tiempo real de USD a Bolívares usando la tasa oficial del Banco Central de Venezuela (BCV) mediante la API de `dolarapi.com`.
+- **Control de Horarios:** Deshabilitación automática del botón de pedido fuera de la jornada laboral establecida.
 - **Confirmación Integrada:** Cierre y limpieza automática del carrito/formulario tras abrir el enlace de WhatsApp.
 
-### ⚙️ Panel de Administración (`⚙️ Admin`)
-- **Gestión de Precios:** Edición en tiempo real de precios en USD.
-- **Control de Stock:** Marcar productos como **Disponible** o **Agotado**.
-- **Ocultar / Mostrar Productos:** Control de visibilidad (👁️/🙈) para lanzar o pausar ítems sin eliminar código.
-- **Tasa BCV Manual:** Posibilidad de sobrescribir manualmente la tasa oficial del día.
-- **Persistencia Local:** Los cambios del panel de control se guardan en el navegador vía `localStorage`.
+### 🛠️ Gestión del Catálogo (Administración)
+Al ser una aplicación web estática alojada en GitHub Pages, los productos, precios y disponibilidades se gestionan de forma segura directamente desde el repositorio:
+- **Edición de Precios:** Actualización de precios en USD modificando el arreglo `PRODUCTS` en el archivo `index.html`.
+- **Control de Stock:** Marcar un producto como `available: false` para mostrarlo como **Agotado**.
+- **Ocultar / Mostrar:** Configurar la propiedad `hidden: true` para pausar productos del catálogo sin eliminar su código.
 
 ---
 
@@ -32,21 +31,14 @@ El script escribe automáticamente en las siguientes columnas:
 | :--- | :--- | :--- | :--- |
 | **A** | ID Pedido | Código correlativo diario `#SP-YYMMDD-XXX` | `#SP-261001-001` |
 | **B** | Fecha / Hora | Estampa de tiempo local | `1/10/2026, 3:54:49 p. m.` |
-| **C** | Cliente | Nombre completo del cliente | `Joseph Joestar` |
+| **C** | Cliente | Nombre completo del cliente | `Maria Perez` |
 | **D** | Modalidad Entrega | Acordar punto o retiro | `Punto de Encuentro Acordado` |
 | **E** | Método de Pago | Pago Móvil, Zelle o Efectivo USD | `Efectivo USD` |
-| **F** | Notas | Observaciones o detalles adicionales | `N/A` |
+| **F** | Notas | Observaciones o detalles adicionales | `Plaza Altamira 3 PM` |
 | **G** | Productos | Resumen concatenado del pedido | `3x Mini Galletas, 2x Pan Trenzado` |
-| **H** | Total USD | Monto total en dólares | `40.50` |
-| **I** | Tasa BCV | Tasa de cambio aplicada (Bs/$) | `860.18` |
-| **J** | Total Bs | Monto equivalente en Bolívares | `34837.10` |
-
----
-
-## 🛠️ Claves de `localStorage` Utilizadas
-
-- `spelta_products`: Guarda las modificaciones de precio, disponibilidad y visibilidad de los productos.
-- `spelta_manual_rate`: Almacena el valor de la tasa oficial forzada manualmente desde el panel de control.
+| **H** | Total USD | Monto total en dólares | `19.00` |
+| **I** | Tasa BCV | Tasa de cambio aplicada (Bs/$) | `36.50` |
+| **J** | Total Bs | Monto equivalente en Bolívares | `693.50` |
 
 ---
 
